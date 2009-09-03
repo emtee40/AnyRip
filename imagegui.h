@@ -2,6 +2,7 @@
 #define IMAGEGUI_H
 
 #include <QProgressBar>
+#include <QTime>
 class DVDImage;
 
 class ImageGui : public QProgressBar
@@ -10,6 +11,10 @@ class ImageGui : public QProgressBar
 
 public:
     ImageGui();
+
+private:
+	QTime m_startTime;
+	bool m_first;
 
 private slots:
 	void extractProgress(int current, int maximum);

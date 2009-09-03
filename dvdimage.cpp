@@ -170,6 +170,7 @@ bool DVDImage::saveImageToDevice(const QString &dvdDevice, QIODevice &out)
 		if (actblks < maxblks)
 			break;
 	}
+	emit extractProgress(blkno, discend);
 
 	if (blkno < (int)discend) {
 		qDebug() << "SHORT READ: only " << blkno << "of" << discend << "blocks copied";
