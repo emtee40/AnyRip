@@ -1,5 +1,5 @@
 #include "imagegui.h"
-#include "dvdimage.h"
+#include "dvdimagejob.h"
 #include <dvdcss/dvdcss.h>
 #include <QPushButton>
 #include <QProgressBar>
@@ -9,10 +9,11 @@
 
 ImageGui::ImageGui()
 {
-	DVDImage *dvdImage = new DVDImage;
+	Video *video = new Video();
+	Job *job = video->nextJob();
 	m_first = true;
-	connect(dvdImage, SIGNAL(extractProgress(int,int)), this, SLOT(extractProgress(int,int)));
-	QtConcurrent::run(dvdImage, &DVDImage::saveImageToPath, QLatin1String("/dev/dvd"), QLatin1String("image.iso"));
+	connect(job, SIGNAL(extractProgress(int,int)), this, SLOT(extractProgress(int,int)));
+	job->runJob();
 }
 void ImageGui::extractProgress(int current, int maximum)
 {

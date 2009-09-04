@@ -1,7 +1,7 @@
 // Much of the CSS logic comes from Bryan Ford's Netsteria
 // http://www.google.com/codesearch/p?hl=en&sa=N&cd=10&ct=rc#PY4_fj37fsw/uia/netsteria/dvd/read.cc&q=DVDCSS_SEEK_KEY
 
-#include "dvdimage.h"
+#include "dvdimagejob.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -12,7 +12,13 @@
 #include <QIODevice>
 #include <QFile>
 
-int DVDImage::cmpvob(const void *p1, const void *p2)
+DVDImageJob::DVDImageJob(Video *video)
+		: Job(video)
+{
+	//Initialize something...
+}
+
+int DVDImageJob::cmpvob(const void *p1, const void *p2)
 {
 	vobfile *v1 = (vobfile*)p1;
 	vobfile *v2 = (vobfile*)p2;
@@ -24,7 +30,17 @@ int DVDImage::cmpvob(const void *p1, const void *p2)
 		return 0;
 }
 
-bool DVDImage::saveImageToPath(const QString &dvdDevice, const QString &path)
+bool DVDImageJob::executeJob()
+{
+	return saveImageToPath(QLatin1String("/dev/dvd"), QLatin1String("image.iso")); //Fix up
+}
+
+Video::Jobs DVDImageJob::jobType()
+{
+	return Video::DVDImage;
+}
+
+bool DVDImageJob::saveImageToPath(const QString &dvdDevice, const QString &path)
 {
 	QFile file(path);
 	file.open(QFile::WriteOnly);
@@ -33,7 +49,7 @@ bool DVDImage::saveImageToPath(const QString &dvdDevice, const QString &path)
 	return ret;
 }
 
-bool DVDImage::saveImageToDevice(const QString &dvdDevice, QIODevice &out)
+bool DVDImageJob::saveImageToDevice(const QString &dvdDevice, QIODevice &out)
 {
 	dvd_reader_t *dvdr = DVDOpen(dvdDevice.toStdString().c_str());
 	if (!dvdr) {
@@ -105,7 +121,7 @@ bool DVDImage::saveImageToDevice(const QString &dvdDevice, QIODevice &out)
 		return false;
 	}
 
-	int blkno = 0;
+	int blkno = 3943433;
 	int curvob = 0;
 	while (1) {
 		//printf("% 3d%%: block %d of %d (byte %lld of %lld)\r",

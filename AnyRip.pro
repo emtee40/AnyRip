@@ -1,7 +1,11 @@
 SOURCES += main.cpp \
-	dvdimage.cpp \
-    imagegui.cpp
-HEADERS += dvdimage.h \
-    imagegui.h
+	dvdimagejob.cpp \
+    imagegui.cpp \
+    job.cpp \
+    video.cpp
+HEADERS += dvdimagejob.h \
+    imagegui.h \
+    job.h \
+    video.h
 LIBS += -ldvdcss \
     -ldvdread

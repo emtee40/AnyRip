@@ -3,7 +3,6 @@
 
 #include <QProgressBar>
 #include <QTime>
-class DVDImage;
 
 class ImageGui : public QProgressBar
 {
