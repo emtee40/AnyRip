@@ -2,15 +2,16 @@
 #define DVDIMAGEJOB_H
 
 #include "job.h"
+class DVDDrive;
 class QIODevice;
 
 class DVDImageJob : public Job
 {
 	Q_OBJECT
 public:
-	DVDImageJob(Video *video);
-	bool saveImageToDevice(const QString &dvdDevice, QIODevice &out);
-	bool saveImageToPath(const QString &dvdDevice, const QString &path);
+	DVDImageJob(Video *video, DVDDrive *dvdDrive);
+	bool saveImageToDevice(QIODevice &out);
+	bool saveImageToPath(const QString &path);
 	Video::Jobs jobType();
 
 private:
@@ -18,6 +19,7 @@ private:
 	typedef struct vobfile {
 		int32_t start, end;
 	} vobfile;
+	DVDDrive *m_dvdDrive;
 
 protected:
 	bool executeJob();

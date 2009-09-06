@@ -3,6 +3,7 @@
 
 #include <QProgressBar>
 #include <QTime>
+class DVDDrive;
 
 class ImageGui : public QProgressBar
 {
@@ -14,9 +15,11 @@ public:
 private:
 	QTime m_startTime;
 	bool m_first;
+	DVDDrive *m_dvdDrive;
 
 private slots:
 	void extractProgress(int current, int maximum);
+	void startImaging();
 };
 
 #endif // IMAGEGUI_H

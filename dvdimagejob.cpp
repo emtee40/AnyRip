@@ -1,7 +1,5 @@
-// Much of the CSS logic comes from Bryan Ford's Netsteria
-// http://www.google.com/codesearch/p?hl=en&sa=N&cd=10&ct=rc#PY4_fj37fsw/uia/netsteria/dvd/read.cc&q=DVDCSS_SEEK_KEY
-
 #include "dvdimagejob.h"
+#include "dvddrive.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -12,10 +10,10 @@
 #include <QIODevice>
 #include <QFile>
 
-DVDImageJob::DVDImageJob(Video *video)
-		: Job(video)
+DVDImageJob::DVDImageJob(Video *video, DVDDrive *dvdDrive)
+		: Job(video),
+		m_dvdDrive(dvdDrive)
 {
-	//Initialize something...
 }
 
 int DVDImageJob::cmpvob(const void *p1, const void *p2)
@@ -32,7 +30,7 @@ int DVDImageJob::cmpvob(const void *p1, const void *p2)
 
 bool DVDImageJob::executeJob()
 {
-	return saveImageToPath(QLatin1String("/dev/dvd"), QLatin1String("image.iso")); //Fix up
+	return saveImageToPath(QLatin1String("image.iso")); //Fix up
 }
 
 Video::Jobs DVDImageJob::jobType()
@@ -40,17 +38,20 @@ Video::Jobs DVDImageJob::jobType()
 	return Video::DVDImage;
 }
 
-bool DVDImageJob::saveImageToPath(const QString &dvdDevice, const QString &path)
+bool DVDImageJob::saveImageToPath(const QString &path)
 {
 	QFile file(path);
 	file.open(QFile::WriteOnly);
-	bool ret = saveImageToDevice(dvdDevice, file);
+	bool ret = saveImageToDevice(file);
 	file.close();
 	return ret;
 }
 
-bool DVDImageJob::saveImageToDevice(const QString &dvdDevice, QIODevice &out)
+// Much of the CSS logic comes from Bryan Ford's Netsteria
+// http://www.google.com/codesearch/p?hl=en&sa=N&cd=10&ct=rc#PY4_fj37fsw/uia/netsteria/dvd/read.cc&q=DVDCSS_SEEK_KEY
+bool DVDImageJob::saveImageToDevice(QIODevice &out)
 {
+	QString dvdDevice = m_dvdDrive->dvdDevice();
 	dvd_reader_t *dvdr = DVDOpen(dvdDevice.toStdString().c_str());
 	if (!dvdr) {
 		qDebug() << "can't open DVD (dvdread)";
@@ -121,7 +122,7 @@ bool DVDImageJob::saveImageToDevice(const QString &dvdDevice, QIODevice &out)
 		return false;
 	}
 
-	int blkno = 3943433;
+	int blkno = 0;
 	int curvob = 0;
 	while (1) {
 		//printf("% 3d%%: block %d of %d (byte %lld of %lld)\r",

@@ -9,10 +9,10 @@ class Job : public QObject
 {
 	Q_OBJECT
 public:
-	Job(QObject *parent = 0);
 	void runJob();
 	virtual Video::Jobs jobType() = 0;
 protected:
+	Job(QObject *parent = 0);
 	virtual bool executeJob() = 0;
 private:
 	QFutureWatcher<bool> *m_watcher;

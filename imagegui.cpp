@@ -1,5 +1,6 @@
 #include "imagegui.h"
 #include "dvdimagejob.h"
+#include "dvddrive.h"
 #include <dvdcss/dvdcss.h>
 #include <QPushButton>
 #include <QProgressBar>
@@ -9,7 +10,18 @@
 
 ImageGui::ImageGui()
 {
-	Video *video = new Video();
+	m_dvdDrive = new DVDDrive(this);
+	if (m_dvdDrive->dvdInserted()) {
+		startImaging();
+	} else {
+		setWindowTitle(tr("Please insert DVD..."));
+		connect(m_dvdDrive, SIGNAL(dvdAdded()), this, SLOT(startImaging()));
+	}
+}
+void ImageGui::startImaging()
+{
+	setWindowTitle(tr("Starting imaging..."));
+	Video *video = new Video(m_dvdDrive);
 	Job *job = video->nextJob();
 	m_first = true;
 	connect(job, SIGNAL(extractProgress(int,int)), this, SLOT(extractProgress(int,int)));
