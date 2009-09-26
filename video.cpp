@@ -4,6 +4,7 @@
 #include "encodemp4job.h"
 #include "uploadjob.h"
 #include "titleloadjob.h"
+#include "videogui.h"
 
 #include <QDir>
 
@@ -101,4 +102,8 @@ void Video::setPoster(const QIODevice &input)
 QString Video::title() const
 {
 	return m_title;
+}
+VideoGui* Video::gui()
+{
+	return new VideoGui(this);
 }

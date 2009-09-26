@@ -11,6 +11,7 @@ class EncodeMP4Job;
 class UploadJob;
 class TitleLoadJob;
 class Job;
+class VideoGui;
 
 class Video : public QObject
 {
@@ -26,6 +27,7 @@ public:
 	TitleLoadJob* titleLoadJob();
 	QList<Job*> availableJobs();
 	QString title() const;
+	VideoGui* gui();
 private:
 	QBitArray m_jobsCompleted;
 	QBitArray m_jobsInProgress;
