@@ -3,7 +3,8 @@
 #include <QtConcurrentRun>
 
 Job::Job(QObject *parent)
-		: QObject(parent)
+		: QObject(parent),
+		m_gui(0)
 {
 	m_watcher = new QFutureWatcher<bool>;
 	m_watcher->setParent(this);
@@ -16,4 +17,10 @@ void Job::runJob()
 void Job::jobFinished()
 {
 	emit completed(m_watcher->future().result());
+}
+QWidget* Job::widget()
+{
+	if (!m_gui)
+		m_gui = gui();
+	return m_gui;
 }

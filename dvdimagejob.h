@@ -2,7 +2,6 @@
 #define DVDIMAGEJOB_H
 
 #include "job.h"
-class DVDDrive;
 class QIODevice;
 
 class DVDImageJob : public Job
@@ -13,18 +12,17 @@ public:
 	bool saveImageToDevice(QIODevice &out);
 	bool saveImageToPath(const QString &path);
 	Video::Jobs jobType() const;
-	QWidget* gui();
 
 private:
 	static int cmpvob(const void *p1, const void *p2);
 	typedef struct vobfile {
 		int32_t start, end;
 	} vobfile;
-	DVDDrive *m_dvdDrive;
 	QString m_defaultPath;
 
 protected:
 	bool executeJob();
+	QWidget* gui();
 
 signals:
 	void extractProgress(int current, int total);

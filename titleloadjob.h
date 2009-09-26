@@ -10,9 +10,9 @@ class TitleLoadJob : public Job
 public:
 	TitleLoadJob(Video *video, QString subtitlePath, QString posterPath);
 	Video::Jobs jobType() const;
-	QWidget* gui();
 protected:
 	bool executeJob();
+	QWidget* gui();
 private:
 	QString m_subtitlePath;
 	QString m_posterPath;

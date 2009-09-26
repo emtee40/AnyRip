@@ -10,9 +10,9 @@ class UploadJob : public Job
 public:
 	UploadJob(Video *video, QString encodePath);
 	Video::Jobs jobType() const;
-	QWidget* gui();
 protected:
 	bool executeJob();
+	QWidget* gui();
 private:
 	QString m_encodePath;
 };

@@ -5,33 +5,48 @@
 #include "uploadjob.h"
 #include "titleloadjob.h"
 #include "videogui.h"
-
+#include "dvddrive.h"
 #include <QDir>
+#include <QSettings>
 
 Video::Video(QString title, QObject *parent) :
 		QObject(parent),
 		m_jobsCompleted(QBitArray(6)),
 		m_jobsInProgress(QBitArray(6))
 {
+	m_settingsKey = QString("Videos/%1/Jobs Completed").arg(title.replace(QChar('/'), QChar('-')));
+	QSettings settings;
+	if (settings.contains(m_settingsKey)) {
+		m_jobsCompleted = settings.value(m_settingsKey).toBitArray();
+		if (m_jobsCompleted.size() != 6)
+			m_jobsCompleted.resize(6);
+	}
 	m_title = title;
 	m_rootPath = QString("%1/AnyRip/%2").arg(QDir::homePath()).arg(m_title);
+	QDir().mkpath(m_rootPath);
 	m_imagePath = QString("%1/%2 - Image.iso").arg(m_rootPath).arg(m_title);
 	m_encodePath = QString("%1/%2 - Encode.mp4").arg(m_rootPath).arg(m_title);
 	m_subtitlePath = QString("%1/%2 - Subtitles.srt").arg(m_rootPath).arg(m_title);
 	m_posterPath = QString("%1/%2 - Poster.jpg").arg(m_rootPath).arg(m_title);
+}
+void Video::saveState()
+{
+	QSettings settings;
+	settings.setValue(m_settingsKey, m_jobsCompleted);
 }
 void Video::completedJob(bool success)
 {
 	Job *job = qobject_cast<Job*>(sender());
 	qDebug() << "Job code" << job->jobType() << "completed" << success;
 	m_jobsCompleted.setBit(job->jobType(), success);
+	saveState();
 	m_jobsInProgress.setBit(job->jobType(), false);
 	emit jobCompleted(job->jobType(), success);
-	delete job;
+	job->deleteLater();
 }
 DVDImageJob* Video::dvdImageJob()
 {
-	if (!m_jobsInProgress.at(Video::DVDImage) && !m_jobsCompleted.at(Video::DVDImage)) {
+	if (!m_jobsInProgress.at(Video::DVDImage) && !m_jobsCompleted.at(Video::DVDImage) && DVDDrive::instance()->dvdInserted()) {
 		DVDImageJob *job = new DVDImageJob(this, m_imagePath);
 		connect(job, SIGNAL(completed(bool)), this, SLOT(completedJob(bool)));
 		m_jobsInProgress.setBit(Video::DVDImage, true);
@@ -88,6 +103,7 @@ void Video::setSubtitle(const QIODevice &input)
 	m_jobsInProgress.setBit(Video::Subtitle, true);
 	//TODO: save input to subtitle file
 	m_jobsCompleted.setBit(Video::Subtitle, true);
+	saveState();
 	m_jobsInProgress.setBit(Video::Subtitle, false);
 	emit jobCompleted(Video::Subtitle, true);
 }
@@ -96,6 +112,7 @@ void Video::setPoster(const QIODevice &input)
 	m_jobsInProgress.setBit(Video::Poster, true);
 	//TODO: save input to subtitle file
 	m_jobsCompleted.setBit(Video::Poster, true);
+	saveState();
 	m_jobsInProgress.setBit(Video::Poster, false);
 	emit jobCompleted(Video::Poster, true);
 }
@@ -103,7 +120,11 @@ QString Video::title() const
 {
 	return m_title;
 }
-VideoGui* Video::gui()
+VideoGui* Video::widget()
 {
 	return new VideoGui(this);
+}
+bool Video::isJobCompleted(Video::Jobs job) const
+{
+	return m_jobsCompleted.at(job);
 }

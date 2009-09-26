@@ -18,6 +18,8 @@ private:
 	void runNextJob();
 private slots:
 	void jobCompleted();
+signals:
+	void runningJob(Job *job);
 };
 
 #endif // JOBQUEUE_H

@@ -10,9 +10,9 @@ class EncodeMP4Job : public Job
 public:
 	EncodeMP4Job(Video *video, QString encodePath, QString imagePath);
 	Video::Jobs jobType() const;
-	QWidget* gui();
 protected:
 	bool executeJob();
+	QWidget* gui();
 private:
 	QString m_encodePath;
 	QString m_imagePath;

@@ -13,6 +13,8 @@ VideoQueue::VideoQueue(QObject *parent) :
 	m_jobQueues.insert(Video::EncodeMP4, new JobQueue(this));
 	m_jobQueues.insert(Video::Upload, new JobQueue(this));
 	m_jobQueues.insert(Video::TitleLoad, new JobQueue(this));
+	foreach(JobQueue *queue, m_jobQueues)
+		connect(queue, SIGNAL(runningJob(Job*)), this, SIGNAL(runningJob(Job*)));
 }
 void VideoQueue::newVideo(Video *video)
 {

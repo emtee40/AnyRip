@@ -1,6 +1,4 @@
-#include "dvddrive.h"
-#include "videogui.h"
-#include "video.h"
+#include "mainwindow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
@@ -9,8 +7,7 @@ int main(int argc, char *argv[])
 	a.setApplicationName(QLatin1String("AnyRip"));
 	a.setOrganizationName(QLatin1String("AnyClip"));
 	a.setOrganizationDomain(QLatin1String("anyclip.com"));
-	DVDDrive drive;
-	Video v(drive.dvdName());
-	v.gui()->show();
+	MainWindow mw;
+	mw.show();
 	return a.exec();
 }

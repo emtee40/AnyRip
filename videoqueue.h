@@ -5,6 +5,7 @@
 #include <QVector>
 class JobQueue;
 class Video;
+class Job;
 
 class VideoQueue : public QObject
 {
@@ -17,6 +18,8 @@ private:
 	void enqueueVideo(Video *video);
 private slots:
 	void videoChanged();
+signals:
+	void runningJob(Job *job);
 };
 
 #endif // VIDEOQUEUE_H

@@ -13,7 +13,6 @@
 
 DVDImageJob::DVDImageJob(Video *video, QString defaultPath)
 		: Job(video),
-		m_dvdDrive(new DVDDrive(this)), //TODO: get from static singleton instance
 		m_defaultPath(defaultPath)
 {
 }
@@ -53,7 +52,7 @@ bool DVDImageJob::saveImageToPath(const QString &path)
 // http://www.google.com/codesearch/p?hl=en&sa=N&cd=10&ct=rc#PY4_fj37fsw/uia/netsteria/dvd/read.cc&q=DVDCSS_SEEK_KEY
 bool DVDImageJob::saveImageToDevice(QIODevice &out)
 {
-	QString dvdDevice = m_dvdDrive->dvdDevice();
+	QString dvdDevice = DVDDrive::instance()->dvdDevice();
 	dvd_reader_t *dvdr = DVDOpen(dvdDevice.toStdString().c_str());
 	if (!dvdr) {
 		qDebug() << "can't open DVD (dvdread)";
@@ -123,7 +122,8 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 		qDebug() << "can't open DVD (dvdcss)";
 		return false;
 	}
-
+	sleep(5);
+	return true;
 	int blkno = 0;
 	int curvob = 0;
 	while (1) {

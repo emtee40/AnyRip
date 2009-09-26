@@ -13,9 +13,11 @@ public:
 	QString dvdDevice() const;
 	bool dvdInserted() const;
 	void eject();
+	static DVDDrive* instance();
 private:
 	QDBusInterface *m_halManager;
 	QDBusInterface *m_halDisc;
+	static DVDDrive *s_instance;
 private slots:
 	bool deviceAdded(const QString &device);
 	void deviceRemoved(const QString &device);

@@ -22,6 +22,7 @@ void JobQueue::runNextJob()
 	Job *job = m_queue.dequeue();
 	qDebug() << "running job" << job->jobType() << "for video" << qobject_cast<Video*>(job->parent())->title();
 	connect(job, SIGNAL(completed(bool)), this, SLOT(jobCompleted()));
+	emit runningJob(job);
 	job->runJob();
 }
 void JobQueue::jobCompleted()

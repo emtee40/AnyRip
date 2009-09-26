@@ -27,7 +27,8 @@ public:
 	TitleLoadJob* titleLoadJob();
 	QList<Job*> availableJobs();
 	QString title() const;
-	VideoGui* gui();
+	VideoGui* widget();
+	bool isJobCompleted(Video::Jobs job) const;
 private:
 	QBitArray m_jobsCompleted;
 	QBitArray m_jobsInProgress;
@@ -37,6 +38,8 @@ private:
 	QString m_encodePath;
 	QString m_subtitlePath;
 	QString m_posterPath;
+	QString m_settingsKey;
+	void saveState();
 private slots:
 	void completedJob(bool success);
 signals:

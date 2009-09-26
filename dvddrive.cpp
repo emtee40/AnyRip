@@ -70,3 +70,10 @@ void DVDDrive::eject()
 		m_halDisc = 0;
 	}
 }
+DVDDrive* DVDDrive::s_instance = 0;
+DVDDrive* DVDDrive::instance()
+{
+	if (!s_instance)
+		s_instance = new DVDDrive;
+	return s_instance;
+}
