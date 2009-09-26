@@ -9,10 +9,11 @@ class DVDImageJob : public Job
 {
 	Q_OBJECT
 public:
-	DVDImageJob(Video *video, DVDDrive *dvdDrive);
+	DVDImageJob(Video *video, QString defaultPath);
 	bool saveImageToDevice(QIODevice &out);
 	bool saveImageToPath(const QString &path);
-	Video::Jobs jobType();
+	Video::Jobs jobType() const;
+	QWidget* gui();
 
 private:
 	static int cmpvob(const void *p1, const void *p2);
@@ -20,6 +21,7 @@ private:
 		int32_t start, end;
 	} vobfile;
 	DVDDrive *m_dvdDrive;
+	QString m_defaultPath;
 
 protected:
 	bool executeJob();

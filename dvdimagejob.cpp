@@ -1,5 +1,6 @@
 #include "dvdimagejob.h"
 #include "dvddrive.h"
+#include "dvdimagejobgui.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -10,9 +11,10 @@
 #include <QIODevice>
 #include <QFile>
 
-DVDImageJob::DVDImageJob(Video *video, DVDDrive *dvdDrive)
+DVDImageJob::DVDImageJob(Video *video, QString defaultPath)
 		: Job(video),
-		m_dvdDrive(dvdDrive)
+		m_dvdDrive(new DVDDrive(this)), //TODO: get from static singleton instance
+		m_defaultPath(defaultPath)
 {
 }
 
@@ -30,10 +32,10 @@ int DVDImageJob::cmpvob(const void *p1, const void *p2)
 
 bool DVDImageJob::executeJob()
 {
-	return saveImageToPath(QLatin1String("image.iso")); //Fix up
+	return saveImageToPath(m_defaultPath);
 }
 
-Video::Jobs DVDImageJob::jobType()
+Video::Jobs DVDImageJob::jobType() const
 {
 	return Video::DVDImage;
 }
@@ -196,4 +198,9 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 
 	qDebug() << "Success:" << blkno << "blocks copied (" << (long long)blkno * DVDCSS_BLOCK_SIZE << ") of" << discend << "expected";
 	return true;
+}
+
+QWidget* DVDImageJob::gui()
+{
+	return new DVDImageJobGui(this);
 }

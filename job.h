@@ -10,7 +10,8 @@ class Job : public QObject
 	Q_OBJECT
 public:
 	void runJob();
-	virtual Video::Jobs jobType() = 0;
+	virtual Video::Jobs jobType() const = 0;
+	virtual QWidget* gui() = 0;
 protected:
 	Job(QObject *parent = 0);
 	virtual bool executeJob() = 0;

@@ -1,14 +1,24 @@
 SOURCES += main.cpp \
     dvdimagejob.cpp \
-    imagegui.cpp \
+    dvdimagejobgui.cpp \
     job.cpp \
     video.cpp \
-    dvddrive.cpp
+    dvddrive.cpp \
+    jobqueue.cpp \
+    videoqueue.cpp \
+    encodemp4job.cpp \
+    uploadjob.cpp \
+    titleloadjob.cpp
 HEADERS += dvdimagejob.h \
-    imagegui.h \
+    dvdimagejobgui.h \
     job.h \
     video.h \
-    dvddrive.h
+    dvddrive.h \
+    jobqueue.h \
+    videoqueue.h \
+    encodemp4job.h \
+    uploadjob.h \
+    titleloadjob.h
 LIBS += -ldvdcss \
     -ldvdread
 QT += dbus
