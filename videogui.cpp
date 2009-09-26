@@ -34,6 +34,7 @@ VideoGui::VideoGui(Video *video) :
 	layout->addWidget(m_subtitleCheck);
 	layout->addWidget(m_posterCheck);
 	setLayout(layout);
+	setFrameStyle(QFrame::StyledPanel);
 }
 void VideoGui::jobCompleted(Video::Jobs jobType, bool success)
 {

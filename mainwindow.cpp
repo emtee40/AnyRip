@@ -40,6 +40,8 @@ MainWindow::MainWindow()
 		Video *video = new Video(title, this);
 		if (video->isJobCompleted(Video::DVDImage))
 			addVideo(video);
+		else
+			settings.remove(QString("Videos/%1").arg(title));
 	}
 	setLayout(layout);
 }

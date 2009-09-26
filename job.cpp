@@ -2,13 +2,18 @@
 #include "video.h"
 #include <QtConcurrentRun>
 
-Job::Job(QObject *parent)
+Job::Job(Video *parent)
 		: QObject(parent),
-		m_gui(0)
+		m_gui(0),
+		m_video(parent)
 {
 	m_watcher = new QFutureWatcher<bool>;
 	m_watcher->setParent(this);
 	connect(m_watcher, SIGNAL(finished()), this, SLOT(jobFinished()));
+}
+Video* Job::video() const
+{
+	return m_video;
 }
 void Job::runJob()
 {

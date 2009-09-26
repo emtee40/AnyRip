@@ -9,11 +9,11 @@ VideoQueue::VideoQueue(QObject *parent) :
 		QObject(parent),
 		m_jobQueues(QVector<JobQueue*>(4))
 {
-	m_jobQueues.insert(Video::DVDImage, new JobQueue(this));
-	m_jobQueues.insert(Video::EncodeMP4, new JobQueue(this));
-	m_jobQueues.insert(Video::Upload, new JobQueue(this));
-	m_jobQueues.insert(Video::TitleLoad, new JobQueue(this));
-	foreach(JobQueue *queue, m_jobQueues)
+	m_jobQueues.replace(Video::DVDImage, new JobQueue(this));
+	m_jobQueues.replace(Video::EncodeMP4, new JobQueue(this));
+	m_jobQueues.replace(Video::Upload, new JobQueue(this));
+	m_jobQueues.replace(Video::TitleLoad, new JobQueue(this));
+	foreach (JobQueue *queue, m_jobQueues)
 		connect(queue, SIGNAL(runningJob(Job*)), this, SIGNAL(runningJob(Job*)));
 }
 void VideoQueue::newVideo(Video *video)

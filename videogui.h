@@ -1,12 +1,12 @@
 #ifndef VIDEOGUI_H
 #define VIDEOGUI_H
 
-#include <QWidget>
+#include <QFrame>
 #include "video.h"
 class QCheckBox;
 class Video;
 
-class VideoGui : public QWidget
+class VideoGui : public QFrame
 {
 	Q_OBJECT
 public:

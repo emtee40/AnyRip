@@ -13,13 +13,15 @@ public:
 	void runJob();
 	virtual Video::Jobs jobType() const = 0;
 	QWidget* widget();
+	Video* video() const;
 protected:
-	Job(QObject *parent = 0);
+	Job(Video *parent);
 	virtual bool executeJob() = 0;
 	virtual QWidget* gui() = 0;
 private:
 	QFutureWatcher<bool> *m_watcher;
 	QWidget *m_gui;
+	Video *m_video;
 private slots:
 	void jobFinished();
 signals:

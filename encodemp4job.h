@@ -16,6 +16,8 @@ protected:
 private:
 	QString m_encodePath;
 	QString m_imagePath;
+signals:
+	void encodePercentage(float percentage);
 };
 
 #endif // ENCODEMP4JOB_H
