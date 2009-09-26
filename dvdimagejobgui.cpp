@@ -2,11 +2,9 @@
 #include "dvdimagejob.h"
 #include "dvddrive.h"
 #include <dvdcss/dvdcss.h>
-#include <QPushButton>
 #include <QProgressBar>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QFile>
 
 DVDImageJobGui::DVDImageJobGui(DVDImageJob *job) :
 		m_first(true)
@@ -30,7 +28,7 @@ void DVDImageJobGui::extractProgress(int current, int maximum)
 		long long maximumBytes = (long long)maximum * DVDCSS_BLOCK_SIZE;
 		double bytesPerMillisecond = (double)currentBytes / (double)m_startTime.elapsed();
 		long long millisecondsRemaining = (long long)((maximumBytes - currentBytes) / bytesPerMillisecond);
-		m_progressLabel->setText(QString("%1 of %2 megabytes (%3 mb/s, %4 remaining)")
+		m_progressLabel->setText(tr("%1 of %2 mb (%3 mb/s, %4 remaining)")
 							.arg(QString::number((double)currentBytes / 1024.0 / 1024.0, 'f', 2))
 							.arg(QString::number((double)maximumBytes / 1024.0 / 1024.0, 'f', 2))
 							.arg(QString::number(bytesPerMillisecond * (1000.0 / 1024.0 / 1024.0), 'f', 2))

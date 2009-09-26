@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     uploadjob.cpp \
     titleloadjob.cpp \
     videogui.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    encodemp4jobgui.cpp
 HEADERS += dvdimagejob.h \
     dvdimagejobgui.h \
     job.h \
@@ -22,7 +23,8 @@ HEADERS += dvdimagejob.h \
     uploadjob.h \
     titleloadjob.h \
     videogui.h \
-    mainwindow.h
+    mainwindow.h \
+    encodemp4jobgui.h
 LIBS += -ldvdcss \
     -ldvdread
 QT += dbus

@@ -26,10 +26,6 @@ MainWindow::MainWindow()
 	heading->addWidget(new QLabel(tr("<b>Videos in Queue</b>")), 1);
 	m_currentlyInserted = new QPushButton;
 	connect(m_currentlyInserted, SIGNAL(clicked()), this, SLOT(newVideoFromDVD()));
-	if (DVDDrive::instance()->dvdInserted())
-		dvdAdded();
-	else
-		dvdRemoved();
 	heading->addWidget(m_currentlyInserted);
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addLayout(heading);
@@ -41,8 +37,12 @@ MainWindow::MainWindow()
 		if (video->isJobCompleted(Video::DVDImage))
 			addVideo(video);
 		else
-			settings.remove(QString("Videos/%1").arg(title));
+			settings.remove(title);
 	}
+	if (DVDDrive::instance()->dvdInserted())
+		dvdAdded();
+	else
+		dvdRemoved();
 	setLayout(layout);
 }
 void MainWindow::dvdAdded()
@@ -75,6 +75,6 @@ void MainWindow::runningJob(Job *job)
 }
 void MainWindow::completedJob(bool success)
 {
-	//TODO: do something with success
+	//TODO: do something with [lack of] success
 	delete qobject_cast<Job*>(sender())->widget();
 }
