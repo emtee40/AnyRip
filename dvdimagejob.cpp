@@ -122,8 +122,6 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 		qDebug() << "can't open DVD (dvdcss)";
 		return false;
 	}
-	sleep(5);
-	return true;
 	int blkno = 0;
 	int curvob = 0;
 	while (1) {
