@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include <QMap>
 #include "dvddrive.h"
 class QVBoxLayout;
 class QPushButton;
@@ -17,13 +18,10 @@ public:
 private:
 	QVBoxLayout *m_videoGuis;
 	QVBoxLayout *m_jobGuis;
-	QPushButton *m_currentlyInserted;
 	VideoQueue *m_queue;
 	void addVideo(Video *video);
 private slots:
-	void dvdAdded();
-	void dvdRemoved();
-	void newVideoFromDVD();
+	void newVideoFromDVD(QString name, QMap<int, QString> titles);
 	void runningJob(Job *job);
 	void completedJob(bool success);
 };

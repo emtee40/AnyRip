@@ -16,6 +16,7 @@ DVDImageJobGui::DVDImageJobGui(DVDImageJob *job) :
 	layout->addWidget(m_progressBar);
 	layout->addWidget(m_progressLabel);
 	setLayout(layout);
+	setFrameStyle(QFrame::StyledPanel);
 	connect(job, SIGNAL(extractProgress(int,int)), this, SLOT(extractProgress(int,int)));
 }
 void DVDImageJobGui::extractProgress(int current, int maximum)

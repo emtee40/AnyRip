@@ -4,6 +4,7 @@
 #include "job.h"
 #include "video.h"
 #include <QTime>
+#include <QMap>
 
 class EncodeMP4Job : public Job
 {
@@ -11,6 +12,8 @@ class EncodeMP4Job : public Job
 public:
 	EncodeMP4Job(Video *video, QString encodePath, QString imagePath);
 	Video::Jobs jobType() const;
+	static QMap<int, QString> titles(const QString &location);
+	QMap<int, QString> titles() const;
 protected:
 	bool executeJob();
 	QWidget* gui();

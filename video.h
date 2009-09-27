@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QBitArray>
 #include <QList>
+#include <QMap>
 
 class QIODevice;
 class DVDImageJob;
@@ -27,8 +28,12 @@ public:
 	TitleLoadJob* titleLoadJob();
 	QList<Job*> availableJobs();
 	QString title() const;
+	int dvdTitle() const;
+	void setDvdTitle(int title);
 	VideoGui* widget();
 	bool isJobCompleted(Video::Jobs job) const;
+	void setDvdTitles(QMap<int, QString> titles);
+	QMap<int, QString> dvdTitles() const;
 private:
 	QBitArray m_jobsCompleted;
 	QBitArray m_jobsInProgress;
@@ -39,6 +44,8 @@ private:
 	QString m_subtitlePath;
 	QString m_posterPath;
 	QString m_settingsKey;
+	QMap<int, QString> m_dvdTitles;
+	int m_dvdTitle;
 	void saveState();
 private slots:
 	void completedJob(bool success);

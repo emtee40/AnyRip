@@ -12,14 +12,20 @@
 Video::Video(QString title, QObject *parent) :
 		QObject(parent),
 		m_jobsCompleted(QBitArray(6)),
-		m_jobsInProgress(QBitArray(6))
+		m_jobsInProgress(QBitArray(6)),
+		m_dvdTitle(1)
 {
-	m_settingsKey = QString("Videos/%1/Jobs Completed").arg(title.replace(QChar('/'), QChar('-')));
+	QString topKey = QString("Videos/%1").arg(title.replace(QChar('/'), QChar('-')));
+	m_settingsKey = topKey.append(QLatin1String("/%1"));
 	QSettings settings;
-	if (settings.contains(m_settingsKey)) {
-		m_jobsCompleted = settings.value(m_settingsKey).toBitArray();
+	if (settings.contains(topKey)) {
+		m_jobsCompleted = settings.value(m_settingsKey.arg("Jobs Completed")).toBitArray();
 		if (m_jobsCompleted.size() != 6)
 			m_jobsCompleted.resize(6);
+		m_dvdTitle = settings.value(m_settingsKey.arg("DVD Title"), 1).toInt();
+		settings.beginGroup(m_settingsKey.arg("DVD Titles"));
+		foreach(QString titleNumber, settings.childKeys())
+			m_dvdTitles.insert(titleNumber.toInt(), settings.value(titleNumber).toString());
 	}
 	m_title = title;
 	m_rootPath = QString("%1/AnyRip/%2").arg(QDir::homePath()).arg(m_title);
@@ -32,7 +38,14 @@ Video::Video(QString title, QObject *parent) :
 void Video::saveState()
 {
 	QSettings settings;
-	settings.setValue(m_settingsKey, m_jobsCompleted);
+	settings.setValue(m_settingsKey.arg("Jobs Completed"), m_jobsCompleted);
+	settings.setValue(m_settingsKey.arg("DVD Title"), m_dvdTitle);
+	settings.remove(m_settingsKey.arg("DVD Titles"));
+	QMapIterator<int, QString> i(m_dvdTitles);
+	while (i.hasNext()) {
+		i.next();
+		settings.setValue(QString("%1/%2").arg(m_settingsKey.arg("DVD Titles")).arg(QString::number(i.key())), i.value());
+	}
 }
 void Video::completedJob(bool success)
 {
@@ -127,4 +140,22 @@ VideoGui* Video::widget()
 bool Video::isJobCompleted(Video::Jobs job) const
 {
 	return m_jobsCompleted.at(job);
+}
+int Video::dvdTitle() const
+{
+	return m_dvdTitle;
+}
+void Video::setDvdTitle(int title)
+{
+	m_dvdTitle = title;
+	saveState();
+}
+QMap<int, QString> Video::dvdTitles() const
+{
+	return m_dvdTitles;
+}
+void Video::setDvdTitles(QMap<int, QString> titles)
+{
+	m_dvdTitles = titles;
+	saveState();
 }

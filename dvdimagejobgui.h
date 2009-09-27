@@ -1,13 +1,13 @@
 #ifndef DVDIMAGEJOBGUI_H
 #define DVDIMAGEJOBGUI_H
 
-#include <QWidget>
+#include <QFrame>
 #include <QTime>
 class QLabel;
 class QProgressBar;
 class DVDImageJob;
 
-class DVDImageJobGui : public QWidget
+class DVDImageJobGui : public QFrame
 {
 	Q_OBJECT
 
