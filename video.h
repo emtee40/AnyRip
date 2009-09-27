@@ -22,6 +22,7 @@ public:
 	enum Jobs { DVDImage, EncodeMP4, Upload, TitleLoad, Subtitle, Poster };
 	void setSubtitle(const QIODevice &input);
 	void setPoster(const QIODevice &input);
+	void setDvdImage(const QString &path);
 	DVDImageJob* dvdImageJob();
 	EncodeMP4Job* encodeMP4Job();
 	UploadJob* uploadJob();

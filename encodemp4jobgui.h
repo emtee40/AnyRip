@@ -1,13 +1,13 @@
 #ifndef ENCODEMP4JOBGUI_H
 #define ENCODEMP4JOBGUI_H
 
-#include <QFrame>
+#include <QGroupBox>
 #include <QTime>
 class QLabel;
 class QProgressBar;
 class EncodeMP4Job;
 
-class EncodeMP4JobGui : public QFrame
+class EncodeMP4JobGui : public QGroupBox
 {
 	Q_OBJECT
 

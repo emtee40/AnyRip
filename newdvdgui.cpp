@@ -37,7 +37,8 @@ NewDVDGui::NewDVDGui() :
 		dvdRemoved();
 	connect(DVDDrive::instance(), SIGNAL(dvdAdded()), this, SLOT(dvdAdded()));
 	connect(DVDDrive::instance(), SIGNAL(dvdRemoved()), this, SLOT(dvdRemoved()));
-	setFrameStyle(QFrame::StyledPanel);
+	setTitle(tr("New Video from DVD"));
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	setLayout(layout);
 }
 void NewDVDGui::dvdAdded()

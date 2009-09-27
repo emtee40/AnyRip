@@ -12,11 +12,11 @@ DVDImageJobGui::DVDImageJobGui(DVDImageJob *job) :
 	m_progressBar = new QProgressBar;
 	m_progressLabel = new QLabel;
 	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(new QLabel(tr("<b>Copying DVD ISO</b> of <i>%1</i>").arg(job->video()->title())));
 	layout->addWidget(m_progressBar);
 	layout->addWidget(m_progressLabel);
 	setLayout(layout);
-	setFrameStyle(QFrame::StyledPanel);
+	setTitle(tr("Copying DVD ISO of %1").arg(job->video()->title()));
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	connect(job, SIGNAL(extractProgress(int,int)), this, SLOT(extractProgress(int,int)));
 }
 void DVDImageJobGui::extractProgress(int current, int maximum)

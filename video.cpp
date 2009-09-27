@@ -7,6 +7,8 @@
 #include "videogui.h"
 #include "dvddrive.h"
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QSettings>
 
 Video::Video(QString title, QObject *parent) :
@@ -15,10 +17,12 @@ Video::Video(QString title, QObject *parent) :
 		m_jobsInProgress(QBitArray(6)),
 		m_dvdTitle(1)
 {
-	QString topKey = QString("Videos/%1").arg(title.replace(QChar('/'), QChar('-')));
-	m_settingsKey = topKey.append(QLatin1String("/%1"));
+	title = title.replace(QChar('/'), QChar('-'));
+	m_settingsKey = QString("Videos/%1/%2").arg(title);
 	QSettings settings;
-	if (settings.contains(topKey)) {
+	settings.beginGroup("Videos");
+	if (settings.childGroups().contains(title)) {
+		settings.endGroup();
 		m_jobsCompleted = settings.value(m_settingsKey.arg("Jobs Completed")).toBitArray();
 		if (m_jobsCompleted.size() != 6)
 			m_jobsCompleted.resize(6);
@@ -120,6 +124,20 @@ void Video::setSubtitle(const QIODevice &input)
 	m_jobsInProgress.setBit(Video::Subtitle, false);
 	emit jobCompleted(Video::Subtitle, true);
 }
+void Video::setDvdImage(const QString &path)
+{
+	m_jobsInProgress.setBit(Video::DVDImage, true);
+	QFileInfo image(m_imagePath);
+	if (image.exists() && image != QFileInfo(path))
+		QFile::remove(m_imagePath);
+	QFile::rename(path, m_imagePath);
+	m_dvdTitle = 1;
+	m_dvdTitles = EncodeMP4Job::titles(m_imagePath);
+	m_jobsCompleted.setBit(Video::DVDImage, true);
+	saveState();
+	m_jobsInProgress.setBit(Video::DVDImage, false);
+	emit jobCompleted(Video::DVDImage, true);
+}
 void Video::setPoster(const QIODevice &input)
 {
 	m_jobsInProgress.setBit(Video::Poster, true);
@@ -147,7 +165,18 @@ int Video::dvdTitle() const
 }
 void Video::setDvdTitle(int title)
 {
+	if (m_dvdTitle == title)
+		return;
 	m_dvdTitle = title;
+	if (m_jobsCompleted.at(Video::EncodeMP4)) {
+		m_jobsCompleted.setBit(Video::EncodeMP4, false);
+		emit jobCompleted(Video::EncodeMP4, false);
+		if(m_jobsCompleted.at(Video::Upload)) {
+			m_jobsCompleted.setBit(Video::Upload, false);
+			emit jobCompleted(Video::Upload, false);
+		}
+		//TODO: if its already encoding or uploading, cancel those jobs
+	}
 	saveState();
 }
 QMap<int, QString> Video::dvdTitles() const

@@ -1,14 +1,14 @@
 #ifndef NEWDVDGUI_H
 #define NEWDVDGUI_H
 
-#include <QFrame>
+#include <QGroupBox>
 #include <QMap>
 #include <QFutureWatcher>
 class QLineEdit;
 class QLabel;
 class QPushButton;
 
-class NewDVDGui : public QFrame
+class NewDVDGui : public QGroupBox
 {
 	Q_OBJECT
 public:
