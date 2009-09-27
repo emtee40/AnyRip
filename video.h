@@ -35,6 +35,10 @@ public:
 	bool isJobCompleted(Video::Jobs job) const;
 	void setDvdTitles(QMap<int, QString> titles);
 	QMap<int, QString> dvdTitles() const;
+	QString imagePath() const;
+	QString encodePath() const;
+	QString subtitlePath() const;
+	QString posterPath() const;
 private:
 	QBitArray m_jobsCompleted;
 	QBitArray m_jobsInProgress;

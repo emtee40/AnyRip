@@ -15,6 +15,18 @@
 
 MainWindow::MainWindow()
 {
+	QSettings settings;
+	settings.beginGroup(QLatin1String("Videos"));
+	//We delay adding because addVideo needs things to be contructed.
+	//We need to remove bad entries though because other constructors here rely on our settings
+	QList<Video*> toAdd;
+	foreach(QString title, settings.childGroups()) {
+		Video *video = new Video(title, this);
+		if (video->isJobCompleted(Video::DVDImage))
+			toAdd.append(video);
+		else
+			settings.remove(title);
+	}
 	m_queue = new VideoQueue;
 	connect(m_queue, SIGNAL(runningJob(Job*)), this, SLOT(runningJob(Job*)));
 	m_videoGuis = new QVBoxLayout;
@@ -30,15 +42,8 @@ MainWindow::MainWindow()
 	NewImageGui *newImageGui = new NewImageGui;
 	connect(newImageGui, SIGNAL(newImage(QString,QString)), this, SLOT(newVideoFromImage(QString,QString)));
 	m_jobGuis->addWidget(newImageGui, 0, Qt::AlignTop);
-	QSettings settings;
-	settings.beginGroup(QLatin1String("Videos"));
-	foreach(QString title, settings.childGroups()) {
-		Video *video = new Video(title, this);
-		if (video->isJobCompleted(Video::DVDImage))
-			addVideo(video);
-		else
-			settings.remove(title);
-	}
+	foreach (Video *video, toAdd)
+		addVideo(video);
 	setLayout(layout);
 }
 void MainWindow::addVideo(Video *video)

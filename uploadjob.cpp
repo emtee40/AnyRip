@@ -2,9 +2,8 @@
 #include <QWidget>
 #include <QLabel>
 
-UploadJob::UploadJob(Video *video, QString encodePath) :
-		Job(video),
-		m_encodePath(encodePath)
+UploadJob::UploadJob(Video *video) :
+		Job(video, false)
 {
 }
 Video::Jobs UploadJob::jobType() const
@@ -21,4 +20,8 @@ QWidget* UploadJob::gui()
 {
 	//TODO: make a gui
 	return new QLabel("Endoplasmic sludge in your upload house");
+}
+void UploadJob::terminate()
+{
+	//TODO: implement terminating
 }

@@ -2,10 +2,8 @@
 #include <QWidget>
 #include <QLabel>
 
-TitleLoadJob::TitleLoadJob(Video *video, QString subtitlePath, QString posterPath) :
-		Job(video),
-		m_subtitlePath(subtitlePath),
-		m_posterPath(posterPath)
+TitleLoadJob::TitleLoadJob(Video *video) :
+		Job(video, false)
 {
 }
 Video::Jobs TitleLoadJob::jobType() const
@@ -22,4 +20,8 @@ QWidget* TitleLoadJob::gui()
 {
 	//TODO: make a gui
 	return new QLabel("Bet your ass this is title loading.");
+}
+void TitleLoadJob::terminate()
+{
+	//TODO: implement terminating
 }

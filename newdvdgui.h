@@ -3,10 +3,10 @@
 
 #include <QGroupBox>
 #include <QMap>
-#include <QFutureWatcher>
 class QLineEdit;
 class QLabel;
 class QPushButton;
+class TitleLoader;
 
 class NewDVDGui : public QGroupBox
 {
@@ -22,13 +22,13 @@ private:
 	const QString m_ripping;
 	QPushButton *m_rip;
 	QPushButton *m_eject;
-	QFutureWatcher<QMap<int, QString> > *m_watcher;
+	TitleLoader *m_titleLoader;
 private slots:
 	void dvdAdded();
 	void dvdRemoved();
 	void validateName(const QString &name);
 	void rip();
-	void loadedTitles();
+	void loadedTitles(QMap<int, QString> titles);
 signals:
 	void newDVD(QString name, QMap<int, QString> titles);
 };

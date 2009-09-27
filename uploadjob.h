@@ -8,13 +8,13 @@ class UploadJob : public Job
 {
 	Q_OBJECT
 public:
-	UploadJob(Video *video, QString encodePath);
+	UploadJob(Video *video);
 	Video::Jobs jobType() const;
 protected:
 	bool executeJob();
 	QWidget* gui();
-private:
-	QString m_encodePath;
+public slots:
+	void terminate();
 };
 
 #endif // UPLOADJOB_H

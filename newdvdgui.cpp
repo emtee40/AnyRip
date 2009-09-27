@@ -1,6 +1,7 @@
 #include "newdvdgui.h"
 #include "dvddrive.h"
 #include "encodemp4job.h"
+#include "titleloader.h"
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -14,9 +15,8 @@ NewDVDGui::NewDVDGui() :
 		m_loadingTitles(tr("<i>%1 inserted. Scanning titles...</i>")),
 		m_ripping(tr("Created new video from DVD."))
 {
-	m_watcher = new QFutureWatcher<QMap<int, QString> >;
-	m_watcher->setParent(this);
-	connect(m_watcher, SIGNAL(finished()), this, SLOT(loadedTitles()));
+	m_titleLoader = new TitleLoader(DVDDrive::instance()->dvdDevice(), this);
+	connect(m_titleLoader, SIGNAL(loadedTitles(QMap<int,QString>)), this, SLOT(loadedTitles(QMap<int,QString>)));
 	m_status = new QLabel;
 	m_dvdName = new QLineEdit;
 	connect(m_dvdName, SIGNAL(textChanged(QString)), this, SLOT(validateName(QString)));
@@ -45,22 +45,22 @@ void NewDVDGui::dvdAdded()
 {
 	QString name = DVDDrive::instance()->dvdName();
 	m_status->setText(m_loadingTitles.arg(name));
-	m_dvdName->setText(name); //Calls validateName
+	m_dvdName->setText(name);
 	m_dvdName->setVisible(false);
 	m_status->setVisible(true);
 	m_rip->setVisible(false);
 	m_eject->setVisible(false);
-	m_watcher->setFuture(QtConcurrent::run(&EncodeMP4Job::titles, DVDDrive::instance()->dvdDevice()));
+	m_titleLoader->loadTitles();
 }
 void NewDVDGui::validateName(const QString &name)
 {
 	QSettings settings;
 	settings.beginGroup(QLatin1String("Videos"));
-	m_rip->setEnabled(!settings.childGroups().contains(name));
+	m_rip->setEnabled(!settings.childGroups().contains(QString(name).replace(QChar('/'), QChar('-'))) && !name.trimmed().isEmpty());
 }
-void NewDVDGui::loadedTitles()
+void NewDVDGui::loadedTitles(QMap<int, QString> titles)
 {
-	m_titles = m_watcher->result();
+	m_titles = titles;
 	m_rip->setVisible(true);
 	m_eject->setVisible(true);
 	m_status->setVisible(false);

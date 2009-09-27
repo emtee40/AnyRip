@@ -15,15 +15,18 @@ public:
 	QWidget* widget();
 	Video* video() const;
 protected:
-	Job(Video *parent);
+	Job(Video *parent, bool threaded);
 	virtual bool executeJob() = 0;
 	virtual QWidget* gui() = 0;
+	QFutureWatcher<bool>* watcher() const;
 private:
 	QFutureWatcher<bool> *m_watcher;
 	QWidget *m_gui;
 	Video *m_video;
 private slots:
 	void jobFinished();
+public slots:
+	virtual void terminate() = 0;
 signals:
 	void completed(bool result);
 };

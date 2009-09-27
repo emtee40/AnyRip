@@ -48,7 +48,7 @@ void NewImageGui::validateName(const QString &name)
 {
 	QSettings settings;
 	settings.beginGroup(QLatin1String("Videos"));
-	m_importImageButton->setEnabled(!settings.childGroups().contains(name));
+	m_importImageButton->setEnabled(!settings.childGroups().contains(QString(name).replace(QChar('/'), QChar('-'))) && !name.trimmed().isEmpty());
 }
 void NewImageGui::browse()
 {

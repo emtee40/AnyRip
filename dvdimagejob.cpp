@@ -11,10 +11,16 @@
 #include <QIODevice>
 #include <QFile>
 
-DVDImageJob::DVDImageJob(Video *video, QString defaultPath)
-		: Job(video),
-		m_defaultPath(defaultPath)
+DVDImageJob::DVDImageJob(Video *video)
+		: Job(video, true),
+		m_terminate(false)
 {
+}
+
+DVDImageJob::~DVDImageJob()
+{
+	disconnect(this, 0, 0, 0);
+	terminate();
 }
 
 int DVDImageJob::cmpvob(const void *p1, const void *p2)
@@ -31,7 +37,7 @@ int DVDImageJob::cmpvob(const void *p1, const void *p2)
 
 bool DVDImageJob::executeJob()
 {
-	return saveImageToPath(m_defaultPath);
+	return saveImageToPath(video()->imagePath());
 }
 
 Video::Jobs DVDImageJob::jobType() const
@@ -45,6 +51,8 @@ bool DVDImageJob::saveImageToPath(const QString &path)
 	file.open(QFile::WriteOnly);
 	bool ret = saveImageToDevice(file);
 	file.close();
+	if (!ret)
+		file.remove();
 	return ret;
 }
 
@@ -52,13 +60,24 @@ bool DVDImageJob::saveImageToPath(const QString &path)
 // http://www.google.com/codesearch/p?hl=en&sa=N&cd=10&ct=rc#PY4_fj37fsw/uia/netsteria/dvd/read.cc&q=DVDCSS_SEEK_KEY
 bool DVDImageJob::saveImageToDevice(QIODevice &out)
 {
+	m_locker.lockForRead();
+	if (m_terminate) {
+		m_locker.unlock();
+		return false;
+	}
+	m_locker.unlock();
 	QString dvdDevice = DVDDrive::instance()->dvdDevice();
 	dvd_reader_t *dvdr = DVDOpen(dvdDevice.toStdString().c_str());
 	if (!dvdr) {
 		qDebug() << "can't open DVD (dvdread)";
 		return false;
 	}
-
+	m_locker.lockForRead();
+	if (m_terminate) {
+		m_locker.unlock();
+		return false;
+	}
+	m_locker.unlock();
 	// Find the extents of all the potentially-encrypted VOB files	
 	uint32_t discend = 0;
 	vobfile vobs[100*10];
@@ -66,10 +85,15 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 	const int NBLOCKS = 16;
 	char buf[DVDCSS_BLOCK_SIZE * NBLOCKS];
 	for (int i = 0; i < 100; i++) {
-
 		// Find the IFO and BUP files for this titleset,
 		// just to make sure hiblock accounts for them.
 		for (int j = 0; j < 2; j++) {
+			m_locker.lockForRead();
+			if (m_terminate) {
+				m_locker.unlock();
+				return false;
+			}
+			m_locker.unlock();
 			char filename[30];
 			const char *ext = j ? "BUP" : "IFO";
 			if (i == 0) {
@@ -89,6 +113,12 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 
 		// Find each VOB part for decryption
 		for (int j = 0; j < 10; j++) {
+			m_locker.lockForRead();
+			if (m_terminate) {
+				m_locker.unlock();
+				return false;
+			}
+			m_locker.unlock();
 			char filename[30];
 			if (i == 0) {
 				if (j > 0)
@@ -111,6 +141,12 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 			nvobs++;
 		}
 	}
+	m_locker.lockForRead();
+	if (m_terminate) {
+		m_locker.unlock();
+		return false;
+	}
+	m_locker.unlock();
 	qsort(&vobs, nvobs, sizeof(vobfile), cmpvob);
 	vobs[nvobs].start = vobs[nvobs].end = INT_MAX;
 
@@ -125,6 +161,12 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 	int blkno = 0;
 	int curvob = 0;
 	while (1) {
+		m_locker.lockForRead();
+		if (m_terminate) {
+			m_locker.unlock();
+			return false;
+		}
+		m_locker.unlock();;
 		//printf("% 3d%%: block %d of %d (byte %lld of %lld)\r",
 		//	   (int)((long long)blkno*100/discend), blkno, discend,
 		//	   (long long)blkno*DVDCSS_BLOCK_SIZE, (long long)discend*DVDCSS_BLOCK_SIZE);
@@ -201,4 +243,12 @@ bool DVDImageJob::saveImageToDevice(QIODevice &out)
 QWidget* DVDImageJob::gui()
 {
 	return new DVDImageJobGui(this);
+}
+
+void DVDImageJob::terminate()
+{
+	m_locker.lockForWrite();
+	m_terminate = true;
+	m_locker.unlock();
+	watcher()->waitForFinished();
 }

@@ -2,16 +2,20 @@
 #include "encodemp4jobgui.h"
 #include <QWidget>
 #include <QLabel>
-#include <QProcess>
 #include <QStringList>
 #include <QRegExp>
 #include <QTime>
+#include <QFile>
 
-EncodeMP4Job::EncodeMP4Job(Video *video, QString encodePath, QString imagePath) :
-		Job(video),
-		m_encodePath(encodePath),
-		m_imagePath(imagePath)
+EncodeMP4Job::EncodeMP4Job(Video *video) :
+		Job(video, false),
+		m_process(0)
 {
+}
+EncodeMP4Job::~EncodeMP4Job()
+{
+	disconnect(this, 0, 0, 0);
+	terminate();
 }
 Video::Jobs EncodeMP4Job::jobType() const
 {
@@ -19,9 +23,13 @@ Video::Jobs EncodeMP4Job::jobType() const
 }
 bool EncodeMP4Job::executeJob()
 {
-	QProcess process;
+	m_process = new QProcess(this);
+	connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(terminate()));
+	connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
+	connect(m_process, SIGNAL(readyRead()), this, SLOT(readyRead()));
 	QStringList arguments;
-	arguments << "-i" << m_imagePath;
+	arguments << "-i" << video()->imagePath();
+	m_encodePath = video()->encodePath();
 	arguments << "-o" << m_encodePath;
 	arguments << "-e" << "x264";
 	arguments << "-b" << "500";
@@ -37,15 +45,18 @@ bool EncodeMP4Job::executeJob()
 	arguments << "--optimize" << "--decomb" << "--deblock" << "--denoise=\"weak\"";
 	arguments << "-x" << "ref=3:mixed-refs:bframes=6:weightb:direct=auto:b-pyramid:me=umh:subme=9:analyse=all:8x8dct:trellis=1:no-fast-pskip:psy-rd=1,1";
 	qDebug() << "starting handbreak with arguments:" << arguments;
-	//process.setStandardErrorFile("/home/zx2c4/Desktop/error.log");
-	//process.setStandardOutputFile("/home/zx2c4/Desktop/out.log");
-	process.start(QLatin1String("./HandBrakeCLI"), arguments, QIODevice::ReadOnly);
-	if (!process.waitForStarted())
-		return false;
-	QRegExp percentLinePattern(QLatin1String("^Encoding: task ([0-9]*) of ([0-9]*), ([0-9]*\\.[0-9]*) % (\\(([0-9]*\\.[0-9]*) fps, avg ([0-9]*\\.[0-9]*) fps, ETA ([0-9]{2})h([0-9]{2})m([0-9]{2})s\\))?"));
-	QRegExp lessPercentLinePattern(QLatin1String("^Encoding: task ([0-9]*) of ([0-9]*), ([0-9]*\\.[0-9]*) %"));
-	while (process.waitForReadyRead(-1)) {
-		QString line = QString(process.readLine()).trimmed();
+	//m_process->setStandardErrorFile("/home/zx2c4/Desktop/error.log");
+	//m_process->setStandardOutputFile("/home/zx2c4/Desktop/out.log");
+	m_process->start(QLatin1String("./HandBrakeCLI"), arguments, QIODevice::ReadOnly);
+	return true;
+}
+void EncodeMP4Job::readyRead()
+{
+	static const QRegExp percentLinePattern(QLatin1String("^Encoding: task ([0-9]*) of ([0-9]*), ([0-9]*\\.[0-9]*) % (\\(([0-9]*\\.[0-9]*) fps, avg ([0-9]*\\.[0-9]*) fps, ETA ([0-9]{2})h([0-9]{2})m([0-9]{2})s\\))?"));
+	static const QRegExp lessPercentLinePattern(QLatin1String("^Encoding: task ([0-9]*) of ([0-9]*), ([0-9]*\\.[0-9]*) %"));
+	QByteArray byteLine;
+	while (!(byteLine = m_process->readLine()).isEmpty()) {
+		QString line = QString(byteLine).trimmed();
 		if (percentLinePattern.exactMatch(line)) {
 			int currentTask = percentLinePattern.cap(1).toInt();
 			int totalTasks = percentLinePattern.cap(2).toInt();
@@ -61,35 +72,29 @@ bool EncodeMP4Job::executeJob()
 			emit encodeProgress(currentTask, totalTasks, percent, -1, -1, QTime());
 		}
 	}
-	process.waitForFinished(-1);
-	return process.exitStatus() == QProcess::NormalExit;
+}
+void EncodeMP4Job::terminate()
+{
+	if (m_process) {
+		disconnect(m_process, 0, 0, 0);
+		delete m_process;
+		m_process = 0;
+		QFile::remove(m_encodePath);
+	}
+	emit completed(false);
+}
+void EncodeMP4Job::finished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+	if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
+		disconnect(m_process, 0, 0, 0);
+		delete m_process;
+		m_process = 0;
+		emit completed(true);
+	}
+	else
+		terminate();
 }
 QWidget* EncodeMP4Job::gui()
 {
 	return new EncodeMP4JobGui(this);
-}
-QMap<int, QString> EncodeMP4Job::titles() const
-{
-	return titles(m_encodePath);
-}
-QMap<int, QString> EncodeMP4Job::titles(const QString &location)
-{
-	QMap<int, QString> titles;
-	QProcess process;
-	QStringList arguments;
-	arguments << "-i" << location;
-	arguments << "-t" << "0";
-	arguments << "--dvdnav";
-	process.start(QLatin1String("./HandBrakeCLI"), arguments, QIODevice::ReadOnly);
-	if (!process.waitForStarted())
-		return titles;
-	process.waitForFinished(-1);
-	QRegExp titleDurationPattern(QLatin1String("\\+ title ([0-9]*):\\n[^\\n]*\\n[^\\n]*\\n  \\+ duration: ([0-9]{2}:[0-9]{2}:[0-9]{2})"));
-	QString output(process.readAllStandardError());
-	int matchLocation = 0;
-	while ((matchLocation = titleDurationPattern.indexIn(output, matchLocation)) != -1) {
-		matchLocation += titleDurationPattern.matchedLength();
-		titles.insert(titleDurationPattern.cap(1).toInt(), titleDurationPattern.cap(2));
-	}
-	return titles;
 }
