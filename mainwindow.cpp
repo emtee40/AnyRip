@@ -33,14 +33,16 @@ MainWindow::MainWindow()
 	m_videoGuis = new QVBoxLayout;
 	m_jobGuis = new QVBoxLayout;
 	QGroupBox *videoGuiBox = new QGroupBox;
+	videoGuiBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	videoGuiBox->setTitle(tr("Video Queue"));
 	videoGuiBox->setLayout(m_videoGuis);
 	QGroupBox *jobsGuiBox = new QGroupBox;
+	jobsGuiBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	jobsGuiBox->setTitle(tr("Job Queue"));
 	jobsGuiBox->setLayout(m_jobGuis);
 	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addWidget(videoGuiBox);
-	layout->addWidget(jobsGuiBox);
+	layout->addWidget(videoGuiBox, 0, Qt::AlignTop);
+	layout->addWidget(jobsGuiBox, 0, Qt::AlignTop);
 	NewDVDGui *newDvdGui = new NewDVDGui;
 	connect(newDvdGui, SIGNAL(newDVD(QString,QMap<int,QString>)), this, SLOT(newVideoFromDVD(QString,QMap<int,QString>)));
 	m_jobGuis->addWidget(newDvdGui, 0, Qt::AlignTop);
