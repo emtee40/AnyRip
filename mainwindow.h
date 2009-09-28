@@ -21,8 +21,8 @@ private:
 	VideoQueue *m_queue;
 	void addVideo(Video *video);
 private slots:
-	void newVideoFromDVD(QString name, QMap<int, QString> titles);
-	void newVideoFromImage(const QString &path, const QString &name);
+	void newVideoFromDVD(const QString &name, QMap<int, QString> titles);
+	void newVideoFromImage(const QString &path, const QString &name, QMap<int, QString> titles);
 	void runningJob(Job *job);
 	void completedJob(bool success);
 };

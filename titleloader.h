@@ -10,7 +10,9 @@ class TitleLoader : public QObject
 	Q_OBJECT
 public:
 	TitleLoader(const QString &location, QObject *parent = 0);
+	TitleLoader(QObject *parent = 0);
 	void loadTitles();
+	void setLocation(const QString &location);
 private:
 	QString m_location;
 	QProcess *m_process;

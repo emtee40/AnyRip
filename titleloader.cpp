@@ -5,6 +5,15 @@ TitleLoader::TitleLoader(const QString &location, QObject *parent) :
 		m_location(location)
 {
 }
+TitleLoader::TitleLoader(QObject *parent) :
+		QObject(parent),
+		m_location(QString())
+{
+}
+void TitleLoader::setLocation(const QString &location)
+{
+	m_location = location;
+}
 void TitleLoader::loadTitles()
 {
 	m_process = new QProcess(this);

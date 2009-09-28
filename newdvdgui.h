@@ -30,7 +30,7 @@ private slots:
 	void rip();
 	void loadedTitles(QMap<int, QString> titles);
 signals:
-	void newDVD(QString name, QMap<int, QString> titles);
+	void newDVD(const QString &name, QMap<int, QString> titles);
 };
 
 #endif // NEWDVDGUI_H
