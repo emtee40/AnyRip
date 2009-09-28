@@ -22,13 +22,13 @@ void EncodeMP4JobGui::encodeProgress(int currentTask, int totalTasks, float perc
 	m_progressBar->setValue((int)(percent * 100));
 	if (!timeRemaining.isNull() && avgFps != -1 && currentFps != -1)
 		m_progressLabel->setText(tr("task %1 of %2, %4 fps (avg %5 fps), %3 remaining")
-							   .arg(QString::number(currentTask))
-							   .arg(QString::number(totalTasks))
-							   .arg(timeRemaining.toString())
-							   .arg(QString::number(currentFps, 'f', 2))
-							   .arg(QString::number(avgFps, 'f', 2)));
+								 .arg(QString::number(currentTask))
+								 .arg(QString::number(totalTasks))
+								 .arg(timeRemaining.toString())
+								 .arg(QString::number(currentFps, 'f', 2))
+								 .arg(QString::number(avgFps, 'f', 2)));
 	else
 		m_progressLabel->setText(tr("task %1 of %2")
-							   .arg(QString::number(currentTask))
-							   .arg(QString::number(totalTasks)));
+								 .arg(QString::number(currentTask))
+								 .arg(QString::number(totalTasks)));
 }

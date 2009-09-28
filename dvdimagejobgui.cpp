@@ -30,10 +30,10 @@ void DVDImageJobGui::extractProgress(int current, int maximum)
 		double bytesPerMillisecond = (double)currentBytes / (double)m_startTime.elapsed();
 		long long millisecondsRemaining = (long long)((maximumBytes - currentBytes) / bytesPerMillisecond);
 		m_progressLabel->setText(tr("%1 of %2 mb (%3 mb/s, %4 remaining)")
-							.arg(QString::number((double)currentBytes / 1024.0 / 1024.0, 'f', 2))
-							.arg(QString::number((double)maximumBytes / 1024.0 / 1024.0, 'f', 2))
-							.arg(QString::number(bytesPerMillisecond * (1000.0 / 1024.0 / 1024.0), 'f', 2))
-							.arg(QTime().addMSecs(millisecondsRemaining).toString()));
+								 .arg(QString::number((double)currentBytes / 1024.0 / 1024.0, 'f', 2))
+								 .arg(QString::number((double)maximumBytes / 1024.0 / 1024.0, 'f', 2))
+								 .arg(QString::number(bytesPerMillisecond * (1000.0 / 1024.0 / 1024.0), 'f', 2))
+								 .arg(QTime().addMSecs(millisecondsRemaining).toString()));
 	}
 	m_progressBar->setMaximum(maximum);
 	m_progressBar->setValue(current);

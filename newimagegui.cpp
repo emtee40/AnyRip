@@ -58,11 +58,11 @@ void NewImageGui::browse()
 }
 void NewImageGui::loadedTitles(QMap<int, QString> titles)
 {
-		m_dvdName->setVisible(true);
-		m_dvdName->setText(QFileInfo(m_path).baseName());
-		m_status->setVisible(false);
-		m_importImageButton->setVisible(true);
-		m_titles = titles;
+	m_dvdName->setVisible(true);
+	m_dvdName->setText(QFileInfo(m_path).baseName());
+	m_status->setVisible(false);
+	m_importImageButton->setVisible(true);
+	m_titles = titles;
 }
 void NewImageGui::importImage()
 {

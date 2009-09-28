@@ -56,24 +56,24 @@ VideoGui::VideoGui(Video *video) :
 void VideoGui::jobCompleted(Video::Jobs jobType, bool success)
 {
 	switch (jobType) {
-		case Video::DVDImage:
-			m_imageCheck->setChecked(success);
-			break;
-		case Video::EncodeMP4:
-			m_encodeCheck->setChecked(success);
-			break;
-		case Video::Upload:
-			m_uploadCheck->setChecked(success);
-			break;
-		case Video::TitleLoad:
-			m_titleLoadCheck->setChecked(success);
-			break;
-		case Video::Subtitle:
-			m_subtitleCheck->setChecked(success);
-			break;
-		case Video::Poster:
-			m_posterCheck->setChecked(success);
-			break;
+	case Video::DVDImage:
+		m_imageCheck->setChecked(success);
+		break;
+	case Video::EncodeMP4:
+		m_encodeCheck->setChecked(success);
+		break;
+	case Video::Upload:
+		m_uploadCheck->setChecked(success);
+		break;
+	case Video::TitleLoad:
+		m_titleLoadCheck->setChecked(success);
+		break;
+	case Video::Subtitle:
+		m_subtitleCheck->setChecked(success);
+		break;
+	case Video::Poster:
+		m_posterCheck->setChecked(success);
+		break;
 	}
 }
 void VideoGui::titleChanged(int index)
