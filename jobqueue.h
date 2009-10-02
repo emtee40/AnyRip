@@ -16,6 +16,7 @@ private:
 	QQueue<Job*> m_queue;
 	bool m_jobIsRunning;
 	void runNextJob();
+	Job *m_currentJob;
 private slots:
 	void jobCompleted();
 signals:

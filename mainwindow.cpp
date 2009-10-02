@@ -78,6 +78,5 @@ void MainWindow::runningJob(Job *job)
 }
 void MainWindow::completedJob(bool success)
 {
-	//TODO: do something with [lack of] success
 	delete qobject_cast<Job*>(sender())->widget();
 }

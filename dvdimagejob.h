@@ -15,7 +15,7 @@ public:
 	bool saveImageToPath(const QString &path);
 	Video::Jobs jobType() const;
 public slots:
-	void terminate();
+	void kill();
 private:
 	static int cmpvob(const void *p1, const void *p2);
 	typedef struct vobfile {

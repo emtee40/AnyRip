@@ -14,7 +14,6 @@
 Video::Video(QString title, QObject *parent) :
 		QObject(parent),
 		m_jobsCompleted(QBitArray(6)),
-		m_jobsInProgress(QBitArray(6)),
 		m_dvdTitle(1)
 {
 	title.replace(QChar('/'), QChar('-'));
@@ -54,49 +53,49 @@ void Video::saveState()
 void Video::completedJob(bool success)
 {
 	Job *job = qobject_cast<Job*>(sender());
-	qDebug() << "Job code" << job->jobType() << "completed" << success;
+	qDebug() << "Job code" << job->jobType() << "completed" << success << "terminated: " << job->terminated();
 	m_jobsCompleted.setBit(job->jobType(), success);
 	saveState();
-	m_jobsInProgress.setBit(job->jobType(), false);
+	m_jobsInProgress.remove(job->jobType(), job);
 	emit jobCompleted(job->jobType(), success);
 	job->deleteLater();
 }
 DVDImageJob* Video::dvdImageJob()
 {
-	if (!m_jobsInProgress.at(Video::DVDImage) && !m_jobsCompleted.at(Video::DVDImage) && DVDDrive::instance()->dvdInserted()) {
+	if (!m_jobsInProgress.contains(DVDImage) && !m_jobsCompleted.at(DVDImage) && DVDDrive::instance()->dvdInserted()) {
 		DVDImageJob *job = new DVDImageJob(this);
 		connect(job, SIGNAL(completed(bool)), this, SLOT(completedJob(bool)));
-		m_jobsInProgress.setBit(Video::DVDImage, true);
+		m_jobsInProgress.insert(DVDImage, job);
 		return job;
 	}
 	return 0;
 }
 EncodeMP4Job* Video::encodeMP4Job()
 {
-	if (!m_jobsInProgress.at(Video::EncodeMP4) && !m_jobsCompleted.at(Video::EncodeMP4) && m_jobsCompleted.at(Video::DVDImage)) {
+	if (!m_jobsInProgress.contains(EncodeMP4) && !m_jobsCompleted.at(EncodeMP4) && m_jobsCompleted.at(DVDImage)) {
 		EncodeMP4Job *job = new EncodeMP4Job(this);
 		connect(job, SIGNAL(completed(bool)), this, SLOT(completedJob(bool)));
-		m_jobsInProgress.setBit(Video::EncodeMP4, true);
+		m_jobsInProgress.insert(EncodeMP4, job);
 		return job;
 	}
 	return 0;
 }
 UploadJob* Video::uploadJob()
 {
-	if (!m_jobsInProgress.at(Video::Upload) && !m_jobsCompleted.at(Video::Upload) && m_jobsCompleted.at(Video::EncodeMP4)) {
+	if (!m_jobsInProgress.contains(Upload) && !m_jobsCompleted.at(Upload) && m_jobsCompleted.at(EncodeMP4)) {
 		UploadJob *job = new UploadJob(this);
 		connect(job, SIGNAL(completed(bool)), this, SLOT(completedJob(bool)));
-		m_jobsInProgress.setBit(Video::Upload, true);
+		m_jobsInProgress.insert(Upload, job);
 		return job;
 	}
 	return 0;
 }
 TitleLoadJob* Video::titleLoadJob()
 {
-	if (!m_jobsInProgress.at(Video::TitleLoad) && !m_jobsCompleted.at(Video::TitleLoad) && m_jobsCompleted.at(Video::Upload) && m_jobsCompleted.at(Video::Subtitle) && m_jobsCompleted.at(Video::Poster)) {
+	if (!m_jobsInProgress.contains(TitleLoad) && !m_jobsCompleted.at(TitleLoad) && m_jobsCompleted.at(Upload) && m_jobsCompleted.at(Subtitle) && m_jobsCompleted.at(Poster)) {
 		TitleLoadJob *job = new TitleLoadJob(this);
 		connect(job, SIGNAL(completed(bool)), this, SLOT(completedJob(bool)));
-		m_jobsInProgress.setBit(Video::TitleLoad, true);
+		m_jobsInProgress.insert(TitleLoad, job);
 		return job;
 	}
 	return 0;
@@ -117,33 +116,27 @@ QList<Job*> Video::availableJobs()
 }
 void Video::setSubtitle(const QIODevice &input)
 {
-	m_jobsInProgress.setBit(Video::Subtitle, true);
 	//TODO: save input to subtitle file
-	m_jobsCompleted.setBit(Video::Subtitle, true);
+	m_jobsCompleted.setBit(Subtitle, true);
 	saveState();
-	m_jobsInProgress.setBit(Video::Subtitle, false);
-	emit jobCompleted(Video::Subtitle, true);
+	emit jobCompleted(Subtitle, true);
 }
 void Video::setDvdImage(const QString &path)
 {
-	m_jobsInProgress.setBit(Video::DVDImage, true);
 	QFileInfo image(m_imagePath);
 	if (image.exists() && image != QFileInfo(path))
 		QFile::remove(m_imagePath);
 	QFile::rename(path, m_imagePath);
-	m_jobsCompleted.setBit(Video::DVDImage, true);
+	m_jobsCompleted.setBit(DVDImage, true);
 	saveState();
-	m_jobsInProgress.setBit(Video::DVDImage, false);
-	emit jobCompleted(Video::DVDImage, true);
+	emit jobCompleted(DVDImage, true);
 }
 void Video::setPoster(const QIODevice &input)
 {
-	m_jobsInProgress.setBit(Video::Poster, true);
 	//TODO: save input to subtitle file
-	m_jobsCompleted.setBit(Video::Poster, true);
+	m_jobsCompleted.setBit(Poster, true);
 	saveState();
-	m_jobsInProgress.setBit(Video::Poster, false);
-	emit jobCompleted(Video::Poster, true);
+	emit jobCompleted(Poster, true);
 }
 QString Video::title() const
 {
@@ -166,16 +159,22 @@ void Video::setDvdTitle(int title)
 	if (m_dvdTitle == title)
 		return;
 	m_dvdTitle = title;
-	if (m_jobsCompleted.at(Video::EncodeMP4)) {
-		m_jobsCompleted.setBit(Video::EncodeMP4, false);
-		emit jobCompleted(Video::EncodeMP4, false);
-		if(m_jobsCompleted.at(Video::Upload)) {
-			m_jobsCompleted.setBit(Video::Upload, false);
-			emit jobCompleted(Video::Upload, false);
+	if (m_jobsCompleted.at(EncodeMP4)) {
+		m_jobsCompleted.setBit(EncodeMP4, false);
+		emit jobCompleted(EncodeMP4, false);
+		if(m_jobsCompleted.at(Upload)) {
+			m_jobsCompleted.setBit(Upload, false);
+			emit jobCompleted(Upload, false);
 		}
-		//TODO: if its already encoding or uploading, cancel those jobs
 	}
+	terminateJobs(EncodeMP4);
+	terminateJobs(Upload);
 	saveState();
+}
+void Video::terminateJobs(Jobs jobType)
+{
+	foreach(Job* job, m_jobsInProgress.values(jobType))
+		job->terminate();
 }
 QMap<int, QString> Video::dvdTitles() const
 {

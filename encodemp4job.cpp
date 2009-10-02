@@ -15,7 +15,7 @@ EncodeMP4Job::EncodeMP4Job(Video *video) :
 EncodeMP4Job::~EncodeMP4Job()
 {
 	disconnect(this, 0, 0, 0);
-	terminate();
+	kill();
 }
 Video::Jobs EncodeMP4Job::jobType() const
 {
@@ -24,7 +24,7 @@ Video::Jobs EncodeMP4Job::jobType() const
 bool EncodeMP4Job::executeJob()
 {
 	m_process = new QProcess(this);
-	connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(terminate()));
+	connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error()));
 	connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
 	connect(m_process, SIGNAL(readyRead()), this, SLOT(readyRead()));
 	QStringList arguments;
@@ -73,26 +73,33 @@ void EncodeMP4Job::readyRead()
 		}
 	}
 }
-void EncodeMP4Job::terminate()
+void EncodeMP4Job::kill()
 {
 	if (m_process) {
 		disconnect(m_process, 0, 0, 0);
-		delete m_process;
+		m_process->terminate();
+		m_process->deleteLater();
 		m_process = 0;
 		QFile::remove(m_encodePath);
 	}
-	emit completed(false);
 }
 void EncodeMP4Job::finished(int exitCode, QProcess::ExitStatus exitStatus)
 {
+	if (!m_process) return;
 	if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
 		disconnect(m_process, 0, 0, 0);
-		delete m_process;
+		m_process->terminate();
+		m_process->deleteLater();
 		m_process = 0;
 		emit completed(true);
 	}
 	else
 		terminate();
+}
+void EncodeMP4Job::error()
+{
+	kill();
+	emit completed(false);
 }
 QWidget* EncodeMP4Job::gui()
 {

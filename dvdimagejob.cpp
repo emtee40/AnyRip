@@ -20,7 +20,7 @@ DVDImageJob::DVDImageJob(Video *video)
 DVDImageJob::~DVDImageJob()
 {
 	disconnect(this, 0, 0, 0);
-	terminate();
+	kill();
 }
 
 int DVDImageJob::cmpvob(const void *p1, const void *p2)
@@ -37,6 +37,9 @@ int DVDImageJob::cmpvob(const void *p1, const void *p2)
 
 bool DVDImageJob::executeJob()
 {
+	m_locker.lockForWrite();
+	m_terminate = false;
+	m_locker.unlock();
 	return saveImageToPath(video()->imagePath());
 }
 
@@ -245,7 +248,7 @@ QWidget* DVDImageJob::gui()
 	return new DVDImageJobGui(this);
 }
 
-void DVDImageJob::terminate()
+void DVDImageJob::kill()
 {
 	m_locker.lockForWrite();
 	m_terminate = true;

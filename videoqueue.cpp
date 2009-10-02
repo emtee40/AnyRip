@@ -2,7 +2,6 @@
 #include "video.h"
 #include "jobqueue.h"
 #include "job.h"
-
 #include <QDebug>
 
 VideoQueue::VideoQueue(QObject *parent) :

@@ -3,7 +3,7 @@
 
 #include <QGroupBox>
 #include "video.h"
-class QCheckBox;
+class StatusLabel;
 class QComboBox;
 class Video;
 
@@ -13,12 +13,12 @@ class VideoGui : public QGroupBox
 public:
 	VideoGui(Video *video);
 private:
-	QCheckBox *m_imageCheck;
-	QCheckBox *m_encodeCheck;
-	QCheckBox *m_uploadCheck;
-	QCheckBox *m_titleLoadCheck;
-	QCheckBox *m_subtitleCheck;
-	QCheckBox *m_posterCheck;
+	StatusLabel *m_imageStatus;
+	StatusLabel *m_encodeStatus;
+	StatusLabel *m_uploadStatus;
+	StatusLabel *m_titleLoadStatus;
+	StatusLabel *m_subtitleStatus;
+	StatusLabel *m_posterStatus;
 	QComboBox *m_titleSelector;
 	Video *m_video;
 private slots:

@@ -5,6 +5,7 @@
 #include <QBitArray>
 #include <QList>
 #include <QMap>
+#include <QMultiHash>
 
 class QIODevice;
 class DVDImageJob;
@@ -32,7 +33,7 @@ public:
 	int dvdTitle() const;
 	void setDvdTitle(int title);
 	VideoGui* widget();
-	bool isJobCompleted(Video::Jobs job) const;
+	bool isJobCompleted(Jobs job) const;
 	void setDvdTitles(QMap<int, QString> titles);
 	QMap<int, QString> dvdTitles() const;
 	QString imagePath() const;
@@ -41,7 +42,7 @@ public:
 	QString posterPath() const;
 private:
 	QBitArray m_jobsCompleted;
-	QBitArray m_jobsInProgress;
+	QMultiHash<Jobs, Job*> m_jobsInProgress;
 	QString m_title;
 	QString m_rootPath;
 	QString m_imagePath;
@@ -52,10 +53,11 @@ private:
 	QMap<int, QString> m_dvdTitles;
 	int m_dvdTitle;
 	void saveState();
+	void terminateJobs(Jobs jobType);
 private slots:
 	void completedJob(bool success);
 signals:
-	void jobCompleted(Video::Jobs job, bool success);
+	void jobCompleted(Video::Jobs jobType, bool success);
 };
 
 #endif // VIDEO_H

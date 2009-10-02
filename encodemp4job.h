@@ -23,8 +23,9 @@ private:
 private slots:
 	void finished(int exitCode, QProcess::ExitStatus exitStats);
 	void readyRead();
+	void error();
 public slots:
-	void terminate();
+	void kill();
 signals:
 	void encodeProgress(int currentTask, int totalTasks, float percent, float currentFps, float avgFps, QTime timeRemaining);
 };

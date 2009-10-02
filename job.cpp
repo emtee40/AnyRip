@@ -5,7 +5,8 @@
 Job::Job(Video *parent, bool threaded)
 		: QObject(parent),
 		m_gui(0),
-		m_video(parent)
+		m_video(parent),
+		m_terminated(false)
 {
 	if (threaded) {
 		m_watcher = new QFutureWatcher<bool>;
@@ -20,6 +21,7 @@ Video* Job::video() const
 }
 void Job::runJob()
 {
+	m_terminated = false;
 	if (m_watcher)
 		m_watcher->setFuture(QtConcurrent::run(this, &Job::executeJob));
 	else
@@ -27,7 +29,8 @@ void Job::runJob()
 }
 void Job::jobFinished()
 {
-	emit completed(m_watcher->future().result());
+	if (!m_terminated)
+		emit completed(m_watcher->future().result());
 }
 QWidget* Job::widget()
 {
@@ -38,4 +41,14 @@ QWidget* Job::widget()
 QFutureWatcher<bool>* Job::watcher() const
 {
 	return m_watcher;
+}
+void Job::terminate()
+{
+	m_terminated = true;
+	kill();
+	emit completed(false);
+}
+bool Job::terminated() const
+{
+	return m_terminated;
 }

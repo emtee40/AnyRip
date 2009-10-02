@@ -5,7 +5,8 @@
 
 JobQueue::JobQueue(QObject *parent) :
 		QObject(parent),
-		m_jobIsRunning(false)
+		m_jobIsRunning(false),
+		m_currentJob(0)
 {
 }
 void JobQueue::addJob(Job *job)
@@ -20,6 +21,7 @@ void JobQueue::runNextJob()
 		return;
 	m_jobIsRunning = true;
 	Job *job = m_queue.dequeue();
+	m_currentJob = job;
 	qDebug() << "running job" << job->jobType() << "for video" << qobject_cast<Video*>(job->parent())->title();
 	connect(job, SIGNAL(completed(bool)), this, SLOT(jobCompleted()));
 	emit runningJob(job);
@@ -27,6 +29,11 @@ void JobQueue::runNextJob()
 }
 void JobQueue::jobCompleted()
 {
-	m_jobIsRunning = false;
-	runNextJob();
+	Job *job = qobject_cast<Job*>(sender());
+	if (job == m_currentJob) {
+		m_jobIsRunning = false;
+		m_currentJob = 0;
+		runNextJob();
+	} else
+		m_queue.removeAll(job);
 }

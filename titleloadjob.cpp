@@ -14,6 +14,7 @@ bool TitleLoadJob::executeJob()
 {
 	//TODO: title load the whole thing
 	sleep(5);
+	emit completed(true);
 	return true;
 }
 QWidget* TitleLoadJob::gui()
@@ -21,7 +22,7 @@ QWidget* TitleLoadJob::gui()
 	//TODO: make a gui
 	return new QLabel("Bet your ass this is title loading.");
 }
-void TitleLoadJob::terminate()
+void TitleLoadJob::kill()
 {
 	//TODO: implement terminating
 }

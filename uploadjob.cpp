@@ -14,6 +14,7 @@ bool UploadJob::executeJob()
 {
 	//TODO: upload the mp4!
 	sleep(5);
+	emit completed(true);
 	return true;
 }
 QWidget* UploadJob::gui()
@@ -21,7 +22,7 @@ QWidget* UploadJob::gui()
 	//TODO: make a gui
 	return new QLabel("Endoplasmic sludge in your upload house");
 }
-void UploadJob::terminate()
+void UploadJob::kill()
 {
 	//TODO: implement terminating
 }

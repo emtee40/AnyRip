@@ -14,7 +14,7 @@ protected:
 	bool executeJob();
 	QWidget* gui();
 public slots:
-	void terminate();
+	void kill();
 };
 
 #endif // UPLOADJOB_H
