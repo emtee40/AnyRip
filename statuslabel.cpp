@@ -12,7 +12,7 @@ StatusLabel::StatusLabel(const QString &text, QWidget *parent) :
 	layout->addWidget(m_pixmap);
 	layout->addWidget(new QLabel(text));
 	setLayout(layout);
-	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 }
 void StatusLabel::setCompleted(bool complete)
 {

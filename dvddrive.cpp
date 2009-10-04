@@ -61,9 +61,8 @@ bool DVDDrive::dvdInserted() const
 }
 void DVDDrive::eject()
 {
-	if (m_halDisc) {
+	if (m_halDisc)
 		QDBusInterface(QLatin1String("org.freedesktop.Hal"), m_halDisc->path(), QLatin1String("org.freedesktop.Hal.Device.Volume"), QDBusConnection::systemBus(), this).call(QLatin1String("Eject"), QStringList());
-	}
 }
 DVDDrive* DVDDrive::s_instance = 0;
 DVDDrive* DVDDrive::instance()
