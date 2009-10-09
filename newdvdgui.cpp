@@ -43,7 +43,12 @@ NewDVDGui::NewDVDGui() :
 }
 void NewDVDGui::dvdAdded()
 {
-	QString name = DVDDrive::instance()->dvdName();
+	QString name = DVDDrive::instance()->dvdName().replace(QLatin1Char('_'), QLatin1Char(' ')).toLower();
+	int i = 0;
+	do {
+		name[i] = name[i].toUpper();
+		i = name.indexOf(QLatin1Char(' '), i) + 1;
+	} while (i);
 	m_status->setText(m_loadingTitles.arg(name));
 	m_dvdName->setText(name);
 	m_dvdName->setVisible(false);
